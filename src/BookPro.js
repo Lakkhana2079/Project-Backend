@@ -22,7 +22,7 @@ const Book = sequelize.define('book', {
   }
 });
 
-const Borrower = sequelize.define('borrower', {
+const Borrower = sequelize.define('customer', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -54,6 +54,11 @@ Book.belongsTo(BorrowingDate);
 
 sequelize.sync();
 
+
+
+
+
+
 // API routes
 
 app.post('/books', async (req, res) => {
@@ -72,7 +77,7 @@ app.post('/books', async (req, res) => {
   }
 });
 
-app.post('/borrower', async (req, res) => {
+app.post('/customer', async (req, res) => {
   try {
     const { name } = req.body;
     const borrower = await Borrower.create({ name });
@@ -123,14 +128,14 @@ app.put('/books/:id', async (req, res) => {
 
 app.delete('/books/:id', async (req, res) => {
   try {
-    const bookId = req.params.id;
+    const books = req.params.id;
 
-    const book = await Book.findByPk(bookId);
+    const book = await Book.findByPk(books);
     if (!book) {
       return res.status(404).send('Book not found');
     }
 
-    await BorrowingDate.destroy({ where: { bookId } });
+    await BorrowingDate.destroy({ where: { books } });
     await book.destroy();
 
     res.send('Book deleted successfully');
