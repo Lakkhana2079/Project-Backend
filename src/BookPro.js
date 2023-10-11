@@ -13,11 +13,11 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 const Book = sequelize.define('book', {
   id: {
     type: Sequelize.INTEGER,
-    //autoIncrement: true,
+    autoIncrement: true,
     primaryKey: true
   },
   title: {
-    //type: Sequelize.STRING,
+    type: Sequelize.STRING,
     allowNull: false
   }
 });
@@ -61,12 +61,12 @@ sequelize.sync();
 app.post('/books', async (req, res) => {
   try {
     const { title, borrowerName, borrowDate, returnDate } = req.body;
-    const borrower = await Borrower.create({ name: borrowerName });
-    const borrowingDate = await BorrowingDate.create({
-      borrow_date: borrowDate,
-      return_date: returnDate,
-      borrowerId: borrower.id
-    });
+    // const borrower = await Borrower.create({ name: borrowerName });
+    // const borrowingDate = await BorrowingDate.create({
+    //   borrow_date: borrowDate,
+    //   return_date: returnDate,
+    //   borrowerId: borrower.id
+    // });
     const book = await Book.create({ title, borrowingDateId: borrowingDate.id });
     res.json(book);
   } catch (error) {
