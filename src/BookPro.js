@@ -7,7 +7,7 @@ app.use(express.json());
 const sequelize = new Sequelize('database', 'username', 'password', {
   host: 'localhost',
   dialect: 'sqlite',
-  storage: './Database/BookPro.sqlite'
+  storage: './Database/BookDB.sqlite'
 });
 
 const Book = sequelize.define('book', {
@@ -22,7 +22,7 @@ const Book = sequelize.define('book', {
   }
 });
 
-const Borrower = sequelize.define('customer', {
+const Borrower = sequelize.define('borrower', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -54,11 +54,6 @@ Book.belongsTo(BorrowingDate);
 
 sequelize.sync();
 
-
-
-
-
-
 // API routes
 
 app.post('/books', async (req, res) => {
@@ -77,7 +72,7 @@ app.post('/books', async (req, res) => {
   }
 });
 
-app.post('/customer', async (req, res) => {
+app.post('/borrower', async (req, res) => {
   try {
     const { name } = req.body;
     const borrower = await Borrower.create({ name });
@@ -128,14 +123,14 @@ app.put('/books/:id', async (req, res) => {
 
 app.delete('/books/:id', async (req, res) => {
   try {
-    const books = req.params.id;
+    const bookId = req.params.id;
 
-    const book = await Book.findByPk(books);
+    const book = await Book.findByPk(bookId);
     if (!book) {
       return res.status(404).send('Book not found');
     }
 
-    await BorrowingDate.destroy({ where: { books } });
+    await BorrowingDate.destroy({ where: { bookId } });
     await book.destroy();
 
     res.send('Book deleted successfully');
