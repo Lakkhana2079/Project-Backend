@@ -49,10 +49,13 @@ const BorrowingDate = sequelize.define('borrowing_date', {
   }
 });
 
-Book.belongsTo(Borrower);
-Book.belongsTo(BorrowingDate);
+//Book.belongsTo(Borrower);
+//Book.belongsTo(BorrowingDate);
 
 sequelize.sync();
+
+
+
 
 // API routes
 
