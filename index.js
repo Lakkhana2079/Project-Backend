@@ -10,18 +10,6 @@ const sequelize = new Sequelize('database', 'username', 'password', {
   storage: './Database/BookDB.sqlite'
 });
 
-const Book = sequelize.define('book', {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  title: {
-    type: Sequelize.STRING,
-    allowNull: false
-  }
-});
-
 const Borrower = sequelize.define('borrower', {
   id: {
     type: Sequelize.INTEGER,
@@ -46,6 +34,18 @@ const BorrowingDate = sequelize.define('borrowing_date', {
   },
   return_date: {
     type: Sequelize.DATE
+  }
+});
+
+const Book = sequelize.define('book', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  title: {
+    type: Sequelize.STRING,
+    allowNull: false
   }
 });
 
@@ -111,6 +111,24 @@ app.get('/books', async (req, res) => {
   }
 });
 
+app.get('/books/:id',(req,res) => {
+  Book.findByPk(req.params.id).then(books => {
+     if(!books){
+      res.status(404).send('Book not found')
+     }
+     else{
+      Borrower.findByPk(books.id).then(books =>{
+        if(!books){
+          res.status(404).send('Book not fount')
+          res.json(books)
+        }
+      }) 
+     }
+  }).catch(err => {
+      res.status(500).send(err);
+  });
+});
+
 app.put('/books/:id', async (req, res) => {
   try {
     const bookId = req.params.id;
@@ -161,7 +179,7 @@ app.get('/all_data', async (req, res) => {
           attributes: ['borrow_date', 'return_date']
         }
       ],
-      attributes: ['title']
+      attributes: ['title', 'id']
     });
     res.json(allData);
   } catch (error) {
@@ -169,5 +187,5 @@ app.get('/all_data', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 5500;
+const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
