@@ -90,17 +90,39 @@ app.post('/borrower', async (req, res) => {
   }
 });
 
+// app.get('/books', async (req, res) => {
+//   try {
+//     const books = await Book.findAll({
+//       include: [
+//         {
+//           model: Borrower,
+//           attributes: ['name']
+//         },
+//         {
+//           model: BorrowingDate,
+//           attributes: ['borrow_date', 'return_date']
+//         }
+//       ],
+//       attributes: ['title']
+//     });
+//     res.json(books);
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 app.get('/books', async (req, res) => {
   try {
     const books = await Book.findAll({
       include: [
         {
-          model: Borrower,
-          attributes: ['name']
-        },
-        {
-          model: BorrowingDate,
-          attributes: ['borrow_date', 'return_date']
+          model: Borrowing,
+          attributes: ['borrowDate', 'returnDate'],
+          include: [
+            {
+              model: Borrower,
+              attributes: ['name']
+            }
+          ]
         }
       ],
       attributes: ['title']
@@ -148,6 +170,23 @@ app.put('/books/:id', async (req, res) => {
   }
 });
 
+// app.delete('/books/:id', async (req, res) => {
+//   try {
+//     const bookId = req.params.id;
+
+//     const book = await Book.findByPk(bookId);
+//     if (!book) {
+//       return res.status(404).send('Book not found');
+//     }
+
+//     await BorrowingDate.destroy({ where: { id: book.borrowingDateId } });
+//     await book.destroy();
+
+//     res.send('Book deleted successfully');
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 app.delete('/books/:id', async (req, res) => {
   try {
     const bookId = req.params.id;
@@ -157,7 +196,16 @@ app.delete('/books/:id', async (req, res) => {
       return res.status(404).send('Book not found');
     }
 
-    await BorrowingDate.destroy({ where: { id: book.borrowingDateId } });
+    if (book.borrowingDateId) {
+      // ตรวจสอบว่ามี borrowingDateId หรือไม่
+      await BorrowingDate.destroy({ where: { id: book.borrowingDateId } });
+    }
+
+    if (book.borrowerId) {
+      // ตรวจสอบว่ามี borrowerId หรือไม่
+      await Borrower.destroy({ where: { id: book.borrowerId } });
+    }
+
     await book.destroy();
 
     res.send('Book deleted successfully');
