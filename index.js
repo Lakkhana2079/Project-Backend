@@ -90,39 +90,17 @@ app.post('/borrower', async (req, res) => {
   }
 });
 
-// app.get('/books', async (req, res) => {
-//   try {
-//     const books = await Book.findAll({
-//       include: [
-//         {
-//           model: Borrower,
-//           attributes: ['name']
-//         },
-//         {
-//           model: BorrowingDate,
-//           attributes: ['borrow_date', 'return_date']
-//         }
-//       ],
-//       attributes: ['title']
-//     });
-//     res.json(books);
-//   } catch (error) {
-//     res.status(500).send(error.message);
-//   }
-// });
 app.get('/books', async (req, res) => {
   try {
     const books = await Book.findAll({
       include: [
         {
-          model: Borrowing,
-          attributes: ['borrowDate', 'returnDate'],
-          include: [
-            {
-              model: Borrower,
-              attributes: ['name']
-            }
-          ]
+          model: Borrower,
+          attributes: ['name']
+        },
+        {
+          model: BorrowingDate,
+          attributes: ['borrow_date', 'return_date']
         }
       ],
       attributes: ['title']
@@ -132,6 +110,28 @@ app.get('/books', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+// app.get('/books', async (req, res) => {
+//   try {
+//     const books = await Book.findAll({
+//       include: [
+//         {
+//           model: BorrowingDate,
+//           attributes: ['borrow_date', 'return_date'],
+//           include: [
+//             {
+//               model: Borrower,
+//               attributes: ['name']
+//             }
+//           ]
+//         }
+//       ],
+//       attributes: ['title']
+//     });
+//     res.json(books);
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 
 app.get('/books/:id',(req,res) => {
   Book.findByPk(req.params.id).then(books => {
@@ -150,6 +150,59 @@ app.get('/books/:id',(req,res) => {
       res.status(500).send(err);
   });
 });
+
+
+app.get('/borrowers', async (req, res) => {
+  try {
+    const borrowers = await Borrower.findAll({
+      attributes: ['id', 'name']
+    });
+    res.json(borrowers);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.get('/borrowing_dates', async (req, res) => {
+  try {
+    const borrowingDates = await BorrowingDate.findAll({
+      include: [
+        {
+          model: Book,
+          attributes: ['title']
+        },
+        {
+          model: Borrower,
+          attributes: ['name']
+        }
+      ]
+    });
+    res.json(borrowingDates);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.get('/borrowers', async (req, res) => {
+  try {
+    const borrowers = await Borrower.findAll();
+    res.json(borrowers);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+
+app.post('/borrowers', async (req, res) => {
+  try {
+    const { name } = req.body;
+    const borrower = await Borrower.create({ name });
+    res.json(borrower);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 
 app.put('/books/:id', async (req, res) => {
   try {
